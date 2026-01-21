@@ -25,6 +25,10 @@
             --gray: #9ca3af;
         }
 
+        html, body {
+            scroll-behavior: smooth;
+        }
+
         body {
             background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             color: var(--light);
@@ -190,6 +194,32 @@
             gap: 12px;
             flex-wrap: wrap;
             align-items: center;
+            justify-content: flex-start;
+        }
+
+        .search-bar {
+            width: 100%;
+            max-width: 360px;
+            position: relative;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 12px 14px 12px 42px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.14);
+            background: rgba(15,23,42,0.7);
+            color: var(--light);
+            font-size: 1rem;
+            outline: none;
+        }
+
+        .search-bar i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray);
         }
 
         .btn-hero {
@@ -387,12 +417,15 @@
                 text-align: center;
             }
             .hero-visual {
-                order: -1;
+                order: 1; /* show after intro lines on mobile */
                 min-height: 200px;
             }
             .grid-plate {
                 margin: 0 auto;
                 transform: rotateX(12deg) rotateY(-6deg);
+            }
+            .ad-screen {
+                margin-top: 12px;
             }
         }
 
@@ -423,9 +456,16 @@
 
         .products-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+            gap: 1.2rem;
             padding: 1rem 0;
+        }
+
+        @media (min-width: 768px) {
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+                gap: 1.5rem;
+            }
         }
 
         /* Product Card */
@@ -1111,6 +1151,10 @@
                 <h1 class="floating">NovaWave Shopping</h1>
                 <p>Bring products to life with immersive 3D visuals, ultra-smooth animations, and direct WhatsApp checkout — designed for modern shoppers on mobile and desktop.</p>
                 <div class="hero-actions">
+                    <div class="search-bar">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="productSearchInput" placeholder="Search products..." autocomplete="off">
+                    </div>
                     <button class="btn-hero" id="startShoppingBtn">
                         <i class="fas fa-arrow-down"></i>
                         Start Shopping
@@ -1205,6 +1249,8 @@
         let heroAdPlaylist = [];
         let heroAdIndex = 0;
         let heroAdTimer = null;
+        let searchTerm = '';
+        let searchDebounce;
 
         // DOM Elements
         const homeLogo = document.getElementById('homeLogo');
@@ -1390,10 +1436,18 @@
 
         // Get filtered products based on category
         function getFilteredProducts() {
-            if (currentCategory === 'all') {
-                return products;
+            let list = products;
+            if (currentCategory !== 'all') {
+                list = list.filter(product => product.category === currentCategory);
             }
-            return products.filter(product => product.category === currentCategory);
+            if (searchTerm.trim()) {
+                const term = searchTerm.trim().toLowerCase();
+                list = list.filter(p =>
+                    (p.name && p.name.toLowerCase().includes(term)) ||
+                    (p.description && p.description.toLowerCase().includes(term))
+                );
+            }
+            return list;
         }
 
         // Render products to the grid
@@ -2093,6 +2147,23 @@
                 buyViaWhatsAppFromDetail();
             }
         });
+
+        // Search input
+        const productSearchInput = document.getElementById('productSearchInput');
+        if (productSearchInput) {
+            productSearchInput.addEventListener('input', (e) => {
+                const val = e.target.value || '';
+                if (searchDebounce) clearTimeout(searchDebounce);
+                searchDebounce = setTimeout(() => {
+                    searchTerm = val;
+                    renderProducts();
+                    const target = document.getElementById('productsSection');
+                    if (target) {
+                        target.scrollIntoView({ behavior: 'smooth' });
+                    }
+                }, 150);
+            });
+        }
 
         // Initialize
         createParticles();
