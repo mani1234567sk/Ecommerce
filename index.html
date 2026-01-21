@@ -54,6 +54,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: nowrap;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             transform: translateZ(20px);
         }
@@ -83,6 +84,7 @@
             border-radius: 50%;
             background: rgba(99, 102, 241, 0.1);
             transition: all 0.3s ease;
+            margin-left: auto;
         }
 
         .cart-icon:hover {
@@ -1004,6 +1006,14 @@
             .main-image {
                 height: 300px;
             }
+
+            header {
+                padding: 1rem 5%;
+                flex-wrap: nowrap;
+            }
+            .logo { font-size: 1.6rem; gap: 8px; }
+            .logo i { font-size: 1.8rem; }
+            .cart-icon { margin-left: auto; }
         }
 
         @media (max-width: 768px) {
